@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from website.enroll import views as enrollViews
+from enroll import views as enrollViews
 
 urlpatterns = [
     path("admin/", admin.site.urls),
