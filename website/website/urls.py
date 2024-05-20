@@ -16,7 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from enroll import views as enrollViews
+from initconf_from_env import init
+
+init()
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("code-send/", enrollViews.send),
 ]
