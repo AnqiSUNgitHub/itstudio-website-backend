@@ -42,7 +42,7 @@ def parse_bool_like(val) -> bool:
     else:
         if le != 1:
             err()
-        c = le[0]
+        c = val[0]
         if c == '1': return True
         if c == '0': return False
         err()
