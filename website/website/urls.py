@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from enroll import views as enrollViews
-from initconf_from_env import init
+from .initconf_from_env import init
 
 init()
 
