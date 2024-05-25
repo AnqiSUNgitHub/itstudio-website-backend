@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from .initconf_from_env import init as env_init
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -131,3 +132,6 @@ EMAIL_FROM="954569093@qq.com"
 DEFAULT_FROM_EMAIL=EMAIL_HOST_USER
 EMAIL_USE_TLS=False
 EMAIL_USE_SSL=True
+
+
+env_init(globals())

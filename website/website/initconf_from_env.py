@@ -1,20 +1,18 @@
-
 from os import getenv, pathsep
-from django.conf import settings
 
 
 def init_by(settings_, key):
     "do nothing if env `key` is not set."
     val = getenv(key)
     if val is not None:
-        settings_.configure(**{key: val})
+        settings_[key] = val
 
 
 def chk_init_by(settings_, key):
     "Raises OSError if env `key` is not set."
     val = getenv(key)
     if val is not None:
-        settings_.configure(**{key: val})
+        settings_[key] = val
     else:
         raise OSError("the envvar '"+key+"' is not set, cannot send email")
 
@@ -38,7 +36,7 @@ def parse_bool_like(val) -> bool:
         b = parse_bool(val)
         if b is None:
             err()
-        res = b
+        return b
     else:
         if le != 1:
             err()
@@ -59,7 +57,7 @@ def init_debug(settings_):
     if val is None:
         return
     debug = parse_bool_like(val)
-    settings_.configure(**dict(DEBUG=debug))
+    settings_["DEBUG"] = debug
     if debug:
         return
     hosts_env = 'ALLOWED_HOSTS'
@@ -71,7 +69,7 @@ def init_debug(settings_):
         err()
     hosts = hosts_s.split(pathsep)
 
-    settings_.configure(ALLOWED_HOSTS=hosts)
+    settings_["ALLOWED_HOSTS"] = hosts
 
 
 chk_init_envs = [
@@ -84,7 +82,7 @@ init_envs = [
 ]
 
 
-def init():
+def init(settings):
     init_debug(settings)
     for k in chk_init_envs: chk_init_by(settings, k)
     for k in init_envs: chk_init_by(settings, k)
