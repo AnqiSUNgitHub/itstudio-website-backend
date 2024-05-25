@@ -10,7 +10,8 @@ EMAIL_RE = re.compile(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$')
 def send(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        if EMAIL.match(email) is None:
+
+        if EMAIL_RE.match(email) is None:
             return Http404("邮箱错误")
         print(email)
         global code  #全局变量，用于后续注册验证匹配
