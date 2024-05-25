@@ -3,12 +3,14 @@ from django.shortcuts import render,HttpResponse
 # Create your views here.
 from django.http import Http404
 from django.core.mail import send_mail
-import random,re
+import random, re
+
+EMAIL_RE = re.compile(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$')
 
 def send(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+        if EMAIL.match(email) is None:
             return Http404("邮箱错误")
         print(email)
         global code  #全局变量，用于后续注册验证匹配
