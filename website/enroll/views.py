@@ -1,5 +1,5 @@
 
-import random, re
+import random
 
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
@@ -13,10 +13,8 @@ else:
 from .models import VerifyCodeModel
 from .verify_code import send_code
 
-EMAIL_RE = re.compile(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$')
-
 def gen_code() -> str:
-    code = '%08d' % random.randint(0, 99999999)
+    code = '%04d' % random.randint(0, 9999)
     return code
 
 @csrf_exempt
@@ -36,8 +34,6 @@ def send(request):
     obj.save()
 
     log(code)
-    msg = "您的验证码是" + code + ",10分钟内有效，请尽快填写"
-    log(msg)
 
     err_msg = send_code(code, [email])
     if err_msg is None:
