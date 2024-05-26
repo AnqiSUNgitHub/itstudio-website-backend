@@ -19,7 +19,6 @@ jobs:
     
     env:
       projd: website
-      EMAIL_HOST_PASSWORD: pwd  # just a placehold for CI
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
