@@ -1,42 +1,37 @@
 
-from string import Template
-import smtplib  # for error handle
-from pathlib import Path
-from django.core.mail import send_mail
+from django.conf import settings
+from .verify_code_impl import *
 
-# use Template over `{}`-format to prevent getting
-# confused with JS's block syntax.
-MSG = Template("欢迎报名爱特工作室，你的验证码是：$code")
-def slurp(fn):
-    f = open(fn, encoding="utf-8")
-    res = f.read()
-    return res
+for attr in (
+    "EMAIL_HOST_USER",
+    "EMAIL_HOST_PASSWORD",
+    "DEFAULT_FROM_EMAIL"
+):
+    globals()[attr] = getattr(settings, attr)
+del attr
 
-H_MSG = Template(
-    slurp(
-        Path(__file__).with_name("verify_code.html")
-    ))
+try:
+    from ._email_conf import *
+except ImportError:
+    pass
 
-def send_code(code, emails):
-    """returns None is not error (successful).
-    If error occurs, returns error message (str).
-    """
-    num_sent = 0
-    err_msg = "success"
-    try:
-        num_sent = send_mail(
-            '报名验证', MSG.substitute(code=code),
-            None, # None means using the value of DEFAULT_FROM_EMAIL setting
-            emails,
-            html_message=H_MSG.substitute(code=code))
-    except smtplib.SMTPServerDisconnected:
-        err_msg = "SMTP server disconnected"
-    except smtplib.SMTPResponseException as e:
-        err_msg = e.smtp_error
-        if type(err_msg) is bytes:
-            err_msg = err_msg.decode()
-    except smtplib.SMTPException as e:
-        err_msg = "error"
-    if num_sent != 0:
-        return None
-    return err_msg
+sender = Sender(
+    auth_user=EMAIL_HOST_USER,
+    auth_password=EMAIL_HOST_PASSWORD,
+    from_email=DEFAULT_FROM_EMAIL)
+
+send_code = sender.send_code
+
+
+if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+    # overwrite send_code
+    def send_code(*_a, **_kw):
+        raise OSError(
+            """EMAIL_HOST_PASSWORD environment variable is not set,
+            which is required to send email.
+
+            Solution:
+            1) set such an environment variable;
+            2) modify settings.EMAIL_HOST_PASSWORD to something other than None
+            """
+        )

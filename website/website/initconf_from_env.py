@@ -1,3 +1,5 @@
+"called by .settings"
+
 from os import getenv, pathsep
 
 
@@ -73,7 +75,6 @@ def init_debug(settings_):
 
 
 chk_init_envs = [
-    "EMAIL_HOST_PASSWORD",
 
 ]
 
