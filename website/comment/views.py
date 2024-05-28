@@ -4,10 +4,11 @@ from rest_framework.views import APIView
 from .models import *
 from .serializers import commentSerializer
 
+
 class CommentView(APIView):
     def get(self):
         comments = comment.objects.filter(parent_id="")
-        serializer = commentSerializer(comments , many=True).data
+        serializer = commentSerializer(comments, many=True).data
         for i in serializer:
             sub_comment = comment.objects.filter(parent_id=i['id'])
             i['children'] = []
@@ -18,16 +19,13 @@ class CommentView(APIView):
 
     def post(self, request):
         content = request.data.get("content")
-        parent_id = request.data.get("parent_id",False)
+        parent_id = request.data.get("parent_id", "")
         flag = comment.objects.filter(parent_id=parent_id)
         if flag:
-            if parent_id:
-                comment.objects.create(content=content,comment_time=datetime.datetime.now(),parent_id=parent_id)
+            if parent_id != "":
+                comment.objects.create(content=content, comment_time=datetime.datetime.now(), parent_id=parent_id)
             else:
-                comment.objects.create(content=content,comment_time=datetime.datetime.now(),parent_id="")
-            return JsonResponse({'code': 200, 'msg':'成功'})
+                comment.objects.create(content=content, comment_time=datetime.datetime.now(), parent_id="")
+            return JsonResponse({'code': 200, 'msg': '成功'})
         else:
             return JsonResponse({'code': 404, 'msg': 'parent_id不存在'})
-
-
-        
