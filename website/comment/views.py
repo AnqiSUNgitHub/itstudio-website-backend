@@ -23,9 +23,9 @@ class CommentView(APIView):
         flag = comment.objects.filter(parent_id=parent_id)
         if flag:
             if parent_id != "":
-                comment.objects.create(content=content, comment_time=datetime.datetime.now(), parent_id=parent_id)
+                comment.objects.create(content=content, parent_id=parent_id)
             else:
-                comment.objects.create(content=content, comment_time=datetime.datetime.now(), parent_id="")
-            return JsonResponse({'code': 200, 'msg': '成功'})
+                comment.objects.create(content=content, parent_id="")
+            return JsonResponse({'code': 200, 'msg': '成功'}, status=200)
         else:
-            return JsonResponse({'code': 404, 'msg': 'parent_id不存在'})
+            return JsonResponse({'code': 404, 'msg': 'parent_id不存在'}, status=404)
