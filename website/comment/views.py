@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-import datetime
+
 from rest_framework.views import APIView
 from .models import *
 from .serializers import commentSerializer
