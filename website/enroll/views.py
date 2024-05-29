@@ -14,7 +14,7 @@ from .models import VerifyCodeModel
 from .verify_code import send_code
 
 def gen_code() -> str:
-    code = '%04d' % random.randint(0, 9999)
+    code = '%04d' % random.randint(1000, 9999)
     return code
 
 @csrf_exempt
