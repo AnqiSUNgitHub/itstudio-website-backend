@@ -1,3 +1,8 @@
 from django.db import models
 
-# Create your models here.
+
+class comment(models.Model):
+    content = models.TextField(verbose_name='评论内容')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, verbose_name='父评论id')
+    comment_time = models.DateTimeField(auto_now_add=True, verbose_name='评论时间')
+

@@ -1,24 +1,43 @@
-from django.shortcuts import render,HttpResponse
 
-# Create your views here.
-from django.http import Http404
-from django.core.mail import send_mail
-import random, re
+import random
 
-EMAIL_RE = re.compile(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$')
+from django.core.exceptions import ValidationError
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+if settings.DEBUG:
+    def log(*a): print(*a)
+else:
+    def log(*_): pass
+from .models import VerifyCodeModel
+from .verify_code import send_code
 
+def gen_code() -> str:
+    code = '%04d' % random.randint(1000, 9999)
+    return code
+
+@csrf_exempt
+@require_http_methods(['POST'])
 def send(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
+    email = request.POST.get('email')
+    log(email)
+    obj = VerifyCodeModel.objects.filter(email=email).first()
+    code = gen_code()
+    if obj is not None:
+        obj.code = code
+    else:
+        try:
+            obj = VerifyCodeModel.objects.create(email=email, code=code)
+        except ValidationError:
+            return JsonResponse(dict(detail="邮箱格式错误"), status=422)
+    obj.save()
 
-        if EMAIL_RE.match(email) is None:
-            return Http404("邮箱错误")
-        print(email)
-        global code  #全局变量，用于后续注册验证匹配
-        code = '%08d' % random.randint(0, 99999999)
-        print(code)
-        msg = "您的验证码是" + code + ",10分钟内有效，请尽快填写"
-        print(msg)
-        send_status = send_mail('找回密码验证', msg, '954569093@qq.com', [email])
-        print(send_status)
-        return HttpResponse(status=200)
+    log(code)
+
+    err_msg = send_code(code, [email])
+    if err_msg is None:
+        return JsonResponse(data={}, status=200)
+    else:
+        return JsonResponse(dict(detail=err_msg) , status=500)
+

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from .initconf_from_env import init as env_init
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,7 +38,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "enroll"
+    "enroll",
+    "rest_framework",
+    "comment",
 ]
 
 MIDDLEWARE = [
@@ -125,9 +128,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 EMAIL_HOST="smtp.qq.com"
 EMAIL_PORT=465
-EMAIL_HOST_USER="954569093@qq.com"
-EMAIL_HOST_PASSWORD='wqlyjdjiyvcdbcid'
-EMAIL_FROM="954569093@qq.com"
-DEFAULT_FROM_EMAIL=EMAIL_HOST_USER
+# EMAIL_HOST_PASSWORD and EMAIL_HOST_USER will be set on .urls
 EMAIL_USE_TLS=False
 EMAIL_USE_SSL=True
+
+
+env_init(globals())
