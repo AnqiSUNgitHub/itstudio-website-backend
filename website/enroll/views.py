@@ -23,6 +23,8 @@ def send(request):
     email = request.POST.get('email')
     email=json.loads(email)
     log(email)
+    VerifyCodeModel.objects.filter(
+        send_time=datetime.datetime.now() - datetime.timedelta(minutes=10)).delete()  # 清除间隔发送时间10分钟的数据
     obj = VerifyCodeModel.objects.filter(email=email).first()
     code = gen_code()
     send_time=datetime.datetime.now()
@@ -38,8 +40,6 @@ def send(request):
     log(code)
 
     err_msg = send_code(code, [email])
-    VerifyCodeModel.objects.filter(
-        send_time=datetime.datetime.now()-datetime.timedelta(minutes=10)).delete()#清除间隔发送时间10分钟的数据
     if err_msg is None:
         return JsonResponse(data={}, status=200)
     else:
