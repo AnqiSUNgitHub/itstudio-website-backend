@@ -1,5 +1,5 @@
-
-import random
+import json
+import random, datetime
 
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
@@ -20,17 +20,32 @@ def gen_code() -> str:
 @csrf_exempt
 @require_http_methods(['POST'])
 def send(request):
-    email = request.POST.get('email')
+
+    email = json.loads(request.body.decode('utf-8')).get('email', None)
+    if email is None:
+        return JsonResponse(dict(detail="email is required but missing"), status=422)
     log(email)
     obj = VerifyCodeModel.objects.filter(email=email).first()
     code = gen_code()
-    if obj is not None:
-        obj.code = code
-    else:
+    def create_new():
+        nonlocal obj
         try:
             obj = VerifyCodeModel.objects.create(email=email, code=code)
         except ValidationError:
             return JsonResponse(dict(detail="邮箱格式错误"), status=422)
+    
+    if obj is not None:
+        ddl = datetime.datetime.now()-datetime.timedelta(minutes=10)
+        if obj.send_time < ddl:
+            obj.delete()
+            res = create_new()
+            if res is not None:
+                return res
+        obj.code = code
+    else:
+        res = create_new()
+        if res is not None:
+            return res
     obj.save()
 
     log(code)
