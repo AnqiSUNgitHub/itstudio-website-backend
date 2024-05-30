@@ -1,6 +1,5 @@
 import json
-import random,datetime
-from django.core.management.base import BaseCommand,CommandError
+import random , datetime
 
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
