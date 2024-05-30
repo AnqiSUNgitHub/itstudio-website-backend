@@ -21,8 +21,9 @@ def gen_code() -> str:
 @require_http_methods(['POST'])
 def send(request):
 
-    email = request.POST.get('email')
-    email = json.loads(email)
+    email = json.loads(request.body.decode('utf-8')).get('email', None)
+    if email is None:
+        return JsonResponse(dict(detail="email is required but missing"), status=422)
     log(email)
     obj = VerifyCodeModel.objects.filter(email=email).first()
     code = gen_code()
