@@ -6,26 +6,25 @@ from .serializers import commentSerializer
 
 
 class CommentView(APIView):
-    def get(self):
-        comments = comment.objects.filter(parent_id="")
+    def get(self, _request):
+        comments = comment.objects.filter(parent=None)
         serializer = commentSerializer(comments, many=True).data
         for i in serializer:
-            sub_comment = comment.objects.filter(parent_id=i['id'])
-            i['children'] = []
-            for j in sub_comment:
-                i["children"].append(j.comment_time.isoformat())
-                i["children"].append(j.content)
-        return JsonResponse(serializer)
+            sub_comment = comment.objects.filter(parent=i['id'])
+            i['children'] = commentSerializer(sub_comment, many=True).data
+        return JsonResponse(serializer,
+                        safe=False) # as a list(array) is returned
 
     def post(self, request):
         content = request.data.get("content")
-        parent_id = request.data.get("parent_id", "")
-        flag = comment.objects.filter(parent_id=parent_id)
-        if flag:
-            if parent_id != "":
-                comment.objects.create(content=content, parent_id=parent_id)
-            else:
-                comment.objects.create(content=content, parent_id="")
+        parent_id = request.data.get("parent")
+        def create_return():
+            comment.objects.create(content=content, parent=parent_id)
             return JsonResponse({'code': 200, 'msg': '成功'}, status=200)
+        if parent_id is None:
+            return create_return()
+        flag = comment.objects.filter(parent=parent_id)
+        if flag:
+            return create_return()
         else:
-            return JsonResponse({'code': 404, 'msg': 'parent_id不存在'}, status=404)
+            return JsonResponse({'code': 404, 'detail': 'parent_id不存在'}, status=404)
