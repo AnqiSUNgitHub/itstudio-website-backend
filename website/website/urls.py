@@ -19,8 +19,14 @@ from django.urls import path
 from enroll import views as enrollViews
 from comment.views import CommentView
 
+from django.urls import path
+from .views import enroll
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("code-send/", enrollViews.send),
     path("bbs/", CommentView.as_view()),
+    
+     path('enroll/', enroll, name='enroll'),
 ]
+
